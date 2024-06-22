@@ -1,9 +1,9 @@
 <?php 
 set_time_limit(0);
-define("siteGenPath","../../siteGenerator/v1/appdata.json");
-require_once("$_SERVER[DOCUMENT_ROOT]/../php_library/htmlRenderers.php");
-require_once("$_SERVER[DOCUMENT_ROOT]/../php_library/urlAndFileSafe.php");
-require_once("$_SERVER[DOCUMENT_ROOT]/../php_library/CSSSelectorSafe.php");
+define("siteGenPath","appdatanew.json");
+require_once("php_library/htmlRenderers.php");
+require_once("php_library/urlAndFileSafe.php");
+require_once("php_library/CSSSelectorSafe.php");
 
 function StartEndSwitch($tp, $s,$e,$rawElem=false){
 	switch($tp){

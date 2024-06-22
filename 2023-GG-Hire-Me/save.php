@@ -1,5 +1,5 @@
 <?php
-require_once("$_SERVER[DOCUMENT_ROOT]/../php_library/postVarSet.php");
+require_once("php_library/postVarSet.php");
 
 function SortIfNeeded(&$info){
 	if(array_search($info['name'],["Projects"]) !== false){

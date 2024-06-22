@@ -4205,7 +4205,7 @@ function(a){
                          button:t
                       }
                    });
-                }throw new Error("Failed to save: "+txt);
+                }else{throw new Error("Failed to save: "+txt);}
              }).catch(e=>console.log(e))
          }
       },["Render"]),
@@ -4237,6 +4237,7 @@ function(a){
 undefined)
 
 </script>
+<script src="js_core/rmfDevRender.js"></script>
 </HEAD>
 <body id='BODY' onload='IGNITE();' >
 </body>
