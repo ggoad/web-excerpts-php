@@ -36,6 +36,7 @@ Lastly, I realize a technical manager may would want to see more of the architec
 However, please understand that this is my life's work, and I'm not totally comfortable of just giving every bit of it away.
 Also, it could very well be a security issue to just give all of the structure away like that: 
 it would take carful consideration and a considerable amount of time to clear it for that.
+Rest assured that these files are heavily tested, and have been ran hundreds of times.
 </p>
 </body>
 </html>
