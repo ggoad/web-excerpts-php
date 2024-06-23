@@ -35,7 +35,6 @@ I'm also including examples of the secure files that they generate.
 		Changing this name is trivial, but I would have to re-render everything... it was just as easy just to redact with 'grep w/ sed'.
 		I've eliminated some of the organizational structure of the folders, and these should be treated as excerpt-examples.
 			<ul>
-				
 				<li><b>blog-news.php</b>: AJAX file for getting the most recent blog news stories. It may seem strange for 'blog-news' to be hard-coded in this file, but that is a side-effect of the meta-programming process, and dynamic sections like this are generalized to all dynamic sections.</li>
 				<li><b>Contact.php</b>: AJAX file to submit a contact form.</li>
 				<li><b>Admin (Folder)</b>: Various files for admin functionality
