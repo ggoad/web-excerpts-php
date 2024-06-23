@@ -6,7 +6,8 @@
 <ul>
 <li><b>Static Site Generator (2023)</b>: A program that takes a very large and complex form, and passes the result to a script that renders out an operational file-cluster that is the whole website.</li>
 <li><b>GGHire Me Site Form (2023)</b>: This program was a complex form that took information about my experience and allowed me to tie everything together via a GUI. Then, the result is passed to a script that fills out the form in the site generator, to be rendered and then published.</li>
-<li><b>Incvoice to Inbox (2022)</b>: Invoicing software. </li>
+<li><b>Daily Wizard (2022)</b>: A wizard to run daily to organize data and schedule work.</li>
+<li><b>Incvoice to Inbox (2021)</b>: Invoicing software. </li>
 <li><b>API Renderer (2019-2020)</b>: A program that automatically renders an interface for a database. There is a static type system that defines type information from over
 the front end, the backend and the database, and the program uses a table editor to tie that type information to columns. Then, there is a configuration editor
 that lets you select the type of function you want to generate and for what columns, and it generates code as to your specifications. You can target MySQL stored procedures,
