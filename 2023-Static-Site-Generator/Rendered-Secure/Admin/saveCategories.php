@@ -21,14 +21,32 @@
 	
 	ObVarSet($dat,'list',$list);
 	
+	function SqliteInList($list, &$fo){
+		$vs=[];
+		$outArr=[];
+		foreach($list as $k=>$v)
+		{
+			$vs[]=":L$k";
+			$outArr[]=[
+				'l'=>":L$k",
+				'v'=>$v
+			];
+		}
+		
+		$fo=function($stmt) use ($outArr){
+			foreach($outArr as $o)
+			{
+				$stmt->bindValue($o['l'],$o['v'],SQLITE3_INTEGER);
+			}
+		};
+		return join(',',$vs);
+	}
 	
-	$pkList=array_map(function($l){return sQuote(intval($l['pk'] ?? ''));},$list);
-	$pkList=array_filter($pkList);
-	$pkList=implode(',',$pkList);
 	$sqlite=SQLite3_Concurrent("$_SERVER[DOCUMENT_ROOT]/../-redacted-/blogs/news/db.db");
 	
-	$sqlite->query("DELETE FROM categories WHERE pk NOT IN($pkList)");
-	
+	$stmt=$sqlite->prepare("DELETE FROM categories WHERE pk NOT IN(".SqliteInList($list, $fo).")");
+	$fo($stmt);
+	$stmt->execute();
 	
 	$slugList=[];
 	$ret=[];
