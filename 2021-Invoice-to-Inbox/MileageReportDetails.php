@@ -16,7 +16,7 @@ chdir(__DIR__);
 		$customerPk=intval($customerPk);
 		
 		$ret=[];
-		$result=$sqlite->query("
+		$stmt=$sqlite->prepare("
 			SELECT 
 				me.*,
 				cst.name||': '||jb.jobName forName,
@@ -33,8 +33,10 @@ chdir(__DIR__);
 				ON cst.pk= jb.customer
 			LEFT JOIN vehicles vv
 				ON vv.pk=me.vehicle
-			WHERE cst.pk=$customerPk;
+			WHERE cst.pk=:cust;
 		");
+		$stmt->bindParam(':cust', $customerPk, SQLITE3_INTEGER);
+		$result=$stmt->execute();
 		while($row = $result->fetchArray(SQLITE3_ASSOC))
 		{
 			array_push($ret, $row);
@@ -48,7 +50,7 @@ chdir(__DIR__);
 		$jobPk=intval($jobPk);
 		
 		$ret=[];
-		$result=$sqlite->query("
+		$stmt=$sqlite->prepare("
 			SELECT 
 				me.*,
 				cst.name||': '||jb.jobName forName,
@@ -65,8 +67,10 @@ chdir(__DIR__);
 				ON cst.pk= jb.customer
 			LEFT JOIN vehicles vv
 				ON vv.pk=me.vehicle
-			WHERE jb.pk=$jobPk;
+			WHERE jb.pk=:job;
 		");
+		$stmt->bindParam(':job', $jobPk, SQLITE3_INTEGER);
+		$result=$stmt->execute();
 		while($row = $result->fetchArray(SQLITE3_ASSOC))
 		{
 			array_push($ret, $row);
@@ -83,10 +87,9 @@ chdir(__DIR__);
 	
 	("{$reportFrame}Frame")($lowerDate, $upperDate);
 	
-	$lowerDate=sQuote($lowerDate);
-	$upperDate=sQuote($upperDate);
 	
-	$result=$sqlite->query("
+	
+	$stmt=$sqlite->prepare("
 		SELECT 
 			me.*,
 			cst.name||': '||jb.jobName forName,
@@ -104,9 +107,13 @@ chdir(__DIR__);
 		LEFT JOIN vehicles vv
 			ON vv.pk=me.vehicle
 		WHERE 
-			SUBSTR(me.mileageDate,1,10) >= $lowerDate 
-			AND SUBSTR(me.mileageDate,1,10) <= $upperDate	
+			SUBSTR(me.mileageDate,1,10) >= :lowerDate 
+			AND SUBSTR(me.mileageDate,1,10) <= :upperDate	
 	");
+	
+	$stmt->bindParam(':lowerDate', $lowerDate, SQLITE3_TEXT);
+	$stmt->bindParam(':upperDate', $upperDate, SQLITE3_TEXT);
+	$result=$stmt->execute();
 	
 	$ret=[];
 	while($row=$result->fetchArray(SQLITE3_ASSOC))

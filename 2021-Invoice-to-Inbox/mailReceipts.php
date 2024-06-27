@@ -35,7 +35,10 @@ chdir(__DIR__);
 	foreach($dat['payments'] as $pmt)
 	{
 		$pmt=intval($pmt);
-		$pmtResult=$sqlite->query("SELECT * FROM payments WHERE pk=$pmt");
+		
+		$pmtStmt=$sqlite->prepare("SELECT * FROM payments WHERE pk=:pmt");
+		$pmtStmt->bindParam(':pmt',$pmt, SQLITE3_INTEGER);
+		$pmtResult=$pmtStmt->execute();
 		$pmtInfo=$pmtResult->fetchArray(SQLITE3_ASSOC);
 		
 		$pmtInfo=json_encode($pmtInfo);

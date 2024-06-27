@@ -83,12 +83,30 @@
 	function EmilioQuoteArray($lm){
 		return sQuote($lm);
 	}
+	function EmilioListify($list,&$fOut){
+		$arrOut=[];
+		$ret=[];
+		foreach($list as $i=>$v)
+		{
+			$ret[]=":L$i":
+			$arrOut[]=[
+				'lab'=>':L'.$i,
+				'value'=>$v
+			];
+		}
+		$fOut= function($stmt) use($arrOut){
+			foreach($arrOut as $v)
+			{
+				$stmt->bindValue($v['lab'],$v['value'],SQLITE3_INTEGER);
+			}
+		};
+		return join(',',$ret);
+	}
 	function EmilioLineItemRegulate($list, $job){
 		global $sqlite;
 		$job=intval($job);
 		if(count($list)){
-			$list=implode(',', array_map('EmilioQuoteArray',$list));
-			$sqlite->query("
+			$stmt=$sqlite->prepare("
 				DELETE
 				FROM lineItems 
 				WHERE pk IN(
@@ -98,11 +116,14 @@
 						ON issInv.invoice=li.invoice
 					WHERE issInv.pk IS NOT NULL
 				)
-					AND job=$job
-					AND pk NOT IN($list);
+					AND job=:job
+					AND pk NOT IN(".EmilioListify($list, $fo).");
 			");
+			$stmt->bindParam(':job',$job, SQLITE3_INTEGER);
+			$fo($stmt);
+			$stmt->execute();
 		}else{
-			$sqlite->query("
+			$stmt=$sqlite->prepare("
 				DELETE
 				FROM lineItems 
 				WHERE pk IN(
@@ -112,28 +133,12 @@
 						ON issInv.invoice=li.invoice
 					WHERE issInv.pk IS NOT NULL
 				)
-					AND job=$job;
+					AND job=:job;
 			");
+			$stmt->bindParam(':job',$job, SQLITE3_INTEGER);
 		}
 	}
 
-	function EmilioRegulate($tableName, $list, $extraVerification){
-		global $sqlite;
-		
-		if(count($list)){
-			$list=implode(',', array_map('EmilioQuoteArray',$list));
-		//echo("DELETE FROM $tableName WHERE pk NOT IN($list) AND $extraVerification;");
-			$sqlite->query("DELETE FROM $tableName WHERE pk NOT IN($list) AND $extraVerification;");
-		}else{
-			EmilioFullRegulate($tableName, $extraVerification);
-		}
-		
-		
-	}
-	function EmilioFullRegulate($tableName, $verification){
-		global $sqlite;
-		$sqlite->query("DELETE FROM $tableName WHERE $verification;");
-	}
 	
 	function EmilioPluralSwitch($count, $single, $plural){
 		if(intval($count) === 1){
@@ -167,7 +172,7 @@
 		$sqlite=new SQLite3('db.db');
 	
 		$ret=[];
-		$result=$sqlite->query("
+		$stmt=$sqlite->prepare("
 		SELECT DISTINCT dt.transactionType, dt.jobName, dt.transDate,dt.transDateTime, dt.amount, dt.invoicePk, dt.paymentPk, dt.pk
 		FROM customers cst
 		JOIN (
@@ -182,7 +187,7 @@
 				pmt.pk pk
 				
 			FROM payments pmt 
-			WHERE pmt.customer=$customerPk
+			WHERE pmt.customer=:customerPk
 			GROUP BY pmt.pk
 			
 			UNION 
@@ -222,16 +227,17 @@
 						 ON li.invoice=inv.pk
 					   LEFT JOIN lineItemSplits lis
 						 ON lis.lineItem=li.pk
-						 WHERE cst.pk=$customerPk
+						 WHERE cst.pk=:customerPk
 						 GROUP BY inv.pk
 			) AS lisCount
 			ON inv.pk = lisCount.ininv
-			WHERE cst.pk=$customerPk
+			WHERE cst.pk=:customerPk
 			GROUP BY inv.pk
 		) AS dt
 		ORDER BY dt.transDateTime 
 		");
-		
+		$stmt->bindParam(':customerPk',$customerPk, SQLITE3_INTEGER);
+		$result=$stmt->execute();
 		$bal=0;
 		
 		while($row=$result->fetchArray(SQLITE3_ASSOC))
@@ -257,7 +263,7 @@
 			$sqlite=PrepSqlite('db.db');
 		}
 		$customerPk=intval($customerPk);
-		$res=$sqlite->query("
+		$stmt=$sqlite->prepare("
 				SELECT 
                      ROUND( 
                      IFNULL(SUM( IFNULL( 
@@ -277,7 +283,7 @@
                    LEFT JOIN lineItemSplits lis
                      ON lis.lineItem=li.pk
    LEFT JOIN (
-      SELECT IFNULL(SUM(amount),0) amount FROM payments WHERE customer=$customerPk GROUP BY customer
+      SELECT IFNULL(SUM(amount),0) amount FROM payments WHERE customer=:customerPk GROUP BY customer
    ) AS pmtSub
    LEFT JOIN (
 		SELECT MAX(COUNT(lis.pk),1) cnt ,
@@ -294,13 +300,15 @@
                      ON li.invoice=inv.pk
                    LEFT JOIN lineItemSplits lis
                      ON lis.lineItem=li.pk
-		WHERE cst.pk = $customerPk
+		WHERE cst.pk = :customerPk
 						 GROUP BY inv.pk
 			) AS lisCount
 			ON inv.pk = lisCount.ininv
-                     WHERE cst.pk=$customerPk
+                     WHERE cst.pk=:customerPk
 
 		");
+		$stmt->bindParam(':customerPk',$customerPk, SQLITE3_INTEGER);
+		$res=$stmt->execute();
 		
 		if(!$row=$res->fetchArray(SQLITE3_ASSOC)){
 			if($needsReset){$sqlite->close();}
