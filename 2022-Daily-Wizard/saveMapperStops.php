@@ -18,7 +18,7 @@ $stops=json_decode($stops, true);
 require_once("RMF/user.php");
 
 $existingPks=array_map(function($st){return $st['pk'];},array_filter($stops,function($st){return @$st['pk'];}));
-$existingPkString=join(',',$existingPks);
+
 
 $queryStr="DELETE FROM dayLog.stop
 WHERE 
@@ -30,15 +30,18 @@ WHERE
 		(arrivalTime >= ? AND departureTime IS NULL)
 	)
 ";
+$tpStr='';
+$vArr=[];
 if($existingPks){
 	
-	$queryStr.="AND pk NOT IN($existingPkString)";
+	$queryStr.="AND pk NOT IN(".InStringPrep($existingPks,$tpStr, $vArr).")";
 }
 
 
 $stmt=$sqlConn->prepare($queryStr);
 
-$stmt->bind_param('sssss', $end, $start, $end, $start, $start);
+
+$stmt->bind_param('sssss'.$tpStr, $end, $start, $end, $start, $start,...$vArr);
 $stmt->execute();
 
 $ret=[];
@@ -46,11 +49,12 @@ foreach($stops as $st)
 {
 	$st['place']['location']['lat']=number_format(floatval($st['place']['location']['lat']),4);
 	$st['place']['location']['lng']=number_format(floatval($st['place']['location']['lng']),4);
-	$encodedDat=sQuote(json_encode($st));
+	$encodedDat=json_encode($st);
 	if(@$st['pk']){
 		unset($st['OGvalue']['place']['location']['lat']);unset($st['OGvalue']['place']['location']['lng']);
-		$encodedDat=sQuote(json_encode($st));
-		$sqlConn->query("CALL dayLog.mpEditdayLog_stop($encodedDat, @out);");
+		$stmt=$sqlConn->prepare("CALL dayLog.mpEditdayLog_stop(?, @out);");
+		$stmt->bind_param('s', $encodedDat);
+		$stmt->execute();
 		$editError=mysqli_error($sqlConn);
 		//die("ERROR : ".mysqli_error($sqlConn));
 		$result=$sqlConn->query("SELECT @out");
@@ -58,10 +62,16 @@ foreach($stops as $st)
 		if($result !== "SUCCESS"){
 			die("failed $result ::: ERROR: $editError ... ".mysqli_error($sqlConn).' ::: dat: '.json_encode($st));
 		}
-		$result=$sqlConn->query("SELECT rmf.TBL_dayLog_stop_RESOLVEFUNCT($st[pk]);");
+		$stmt=$sqlConn->prepare("SELECT rmf.TBL_dayLog_stop_RESOLVEFUNCT(?);");
+		$stmt->bind_param('i',$st['pk']);
+		$stmt->execute();
+		$result=$stmt->get_result();
 		$r=json_decode($result->fetch_row()[0]);
 	}else{
-		$sqlConn->query("CALL dayLog.mpAdddayLog_stop($encodedDat, @out);");
+		$stmt=$sqlConn->prepare("CALL dayLog.mpAdddayLog_stop(?, @out);");
+		$stmt->bind_param('s',$encodedDat);
+		$stmt->execute();
+		
 		$result=$sqlConn->query("SELECT @out");
 		$result=$result->fetch_row()[0];
 		if($result !== "SUCCESS"){
