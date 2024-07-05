@@ -5,6 +5,9 @@
 <h2>Project List</h2>
 <ul>
 <li><b>PRODUTION READY demo.greggoad.net (2024)</b>: This is the whole production code of GregGoad.net, with all of the sensitive information changed. This should be seen as my understanding of how a web applcation should be structured. All of the other excepts are from tools used to create this site, and are a mess.</li>
+<li><b>Tools</b>: These are the tools I used to make the production program. 
+They are rushed, and sloppy. It's been "Get it to MVP, and move ON". 
+However, I include them because I'm very proud of the complex problems that they solve.<ul>
 <li><b>Static Site Generator (2023)</b>: A program that takes a very large and complex form, and passes the result to a script that renders out an operational file-cluster that is the whole website.</li>
 <li><b>GGHire Me Site Form (2023)</b>: This program was a complex form that took information about my experience and allowed me to tie everything together via a GUI. Then, the result is passed to a script that fills out the form in the site generator, to be rendered and then published.</li>
 <li><b>Daily Wizard (2022)</b>: A wizard to run daily to organize data and schedule work.</li>
@@ -13,6 +16,7 @@
 the front end, the backend and the database, and the program uses a table editor to tie that type information to columns. Then, there is a configuration editor
 that lets you select the type of function you want to generate and for what columns, and it generates code as to your specifications. You can target MySQL stored procedures,
 or PHP regular expressions for SQLite or MySQL. The front end it targets is a custom library called RMF.js</li>
+</ul></li>
 </ul>
 <h1>Real Proof</h1>
 <p>
