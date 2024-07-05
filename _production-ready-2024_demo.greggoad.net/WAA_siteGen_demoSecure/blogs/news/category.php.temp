@@ -1,0 +1,446 @@
+<?php 
+require_once("$_SERVER[DOCUMENT_ROOT]/../php_library/sqliteSupplement.php");
+require_once("$_SERVER[DOCUMENT_ROOT]/../php_library/postVarSet.php");
+require_once("$_SERVER[DOCUMENT_ROOT]/../php_library/unirep.php");
+require_once("$_SERVER[DOCUMENT_ROOT]/../php_library/htmlRenderers.php");
+require_once("$_SERVER[DOCUMENT_ROOT]/../php_library/sQuote.php");
+
+function CategoryButton($c, $selected=false){
+	$props=[
+		'class'=>'Blog-CategoryButton',
+		'onclick'=>"_el.CancelEvent(event); VCR.main.CHANGE('category', {category:'".($c['slug'] ?? 'all')."', categoryTitle:'$c[name]'}); _el.MoveId('Blog-SelectedCategoryButton',this);"
+	];
+	if($selected){
+		$props['id']='Blog-SelectedCategoryButton';
+	}
+	$href="/news";
+	if(isset($c['slug'])){
+		$href.="/c/$c[slug]";
+	}
+	return HTML_element('a',[
+		'class'=>'invisiAnchors',
+		'href'=>$href
+	],[
+		[
+			'tag'=>'div',
+			'properties'=>$props,
+			'children'=>[$c['name']]
+		]
+	]);
+}
+
+$sqlite=SQLite3_Concurrent("$_SERVER[DOCUMENT_ROOT]/../WAA_siteGen_demoSecure/blogs/news/db.db");
+
+$meta=[];
+
+$uri=$_SERVER['REQUEST_URI'];
+$uri=explode('?',$uri);
+$uri=$uri[0];
+
+$matches=[];
+$pageNumber=0;
+if(preg_match('/\/([0-9]+)\/{0,1}$/',$uri,$matches)){
+	$pageNumber=intval($matches[1]);
+}
+$pageNumTitleAppend='';
+$pageNumDescriptionAppend='';
+$pageNumUriAppend='';
+if(!$pageNumber){
+	$pageNumber=0;
+}else{
+	$pageNumTitleAppend=' Page '.($pageNumber+1);
+	$pageNumDescriptionAppend=" (".ltrim($pageNumTitleAppend).")";
+	$pageNumUriAppend=($pageNumber+1).'/';
+}
+
+
+
+
+$spl=explode('/c/', $uri);
+if(count($spl) === 1){
+	$category='all';
+	$categoryTitle='All';
+	
+	
+}else{
+	$category=explode("/",$spl[1])[0];
+	$checkStmt=$sqlite->prepare("SELECT COUNT(*), name FROM categories WHERE slug=:name");
+	$checkStmt->bindValue(":name", $category, SQLITE3_TEXT);
+	$res=$checkStmt->execute();
+	$arr=$res->fetchArray(SQLITE3_NUM);
+	$cnt=$arr[0];
+	$categoryTitle=$arr[1];
+	
+	$cnt=intval($cnt);
+	if(!$cnt){
+		$category='all';
+		$categoryTitle='All';
+	}else{
+		$checkStmt=$sqlite->prepare("SELECT * FROM categories WHERE slug=:name");
+		$checkStmt->bindValue(":name", $category, SQLITE3_TEXT);
+		$res=$checkStmt->execute();
+		$arr=$res->fetchArray(SQLITE3_ASSOC);
+		$shareImage=json_decode($arr['shareImage'], true);
+		
+		
+		
+		$meta[]=HTML_element('title',[],["News | $arr[name]$pageNumTitleAppend"]);
+		$meta[]=HTML_element('meta',['property'=>'og:title','content'=>"News | $arr[name]$pageNumTitleAppend"]);
+		
+		$meta[]=HTML_element('meta',['property'=>'og:type','content'=>'website']);
+		$meta[]=HTML_element('meta',['property'=>'og:url','content'=>"https://demo.greggoad.net/news/c/$arr[slug]/$pageNumUriAppend"]);
+		$meta[]=HTML_element('link',['rel'=>'canonical', 'href'=>"https://demo.greggoad.net/news/c/$arr[slug]/$pageNumUriAppend"]);
+		
+		
+		if($arr['description']){
+			$meta[]=HTML_element('meta',['name'=>'description','content'=>$arr['description'].$pageNumDescriptionAppend]);
+			$meta[]=HTML_element('meta',['property'=>'og:description','content'=>$arr['description'].$pageNumDescriptionAppend]);
+		}
+		
+		
+		if($shareImage['slug'] && $shareImage['ext']){
+			$meta[]=HTML_element('meta',['name'=>'og:image', 'content'=>"https://demo.greggoad.net/news/c/$shareImage[slug].$shareImage[ext]"]);
+			if($shareImage['alt']){
+				$meta[]=HTML_element('meta',['name'=>'og:image:alt', 'content'=>$shareImage['alt']]);
+				
+			}
+		}
+	}
+	
+	
+}
+
+if($category === 'all'){
+	$meta[]=HTML_element('title',[],["News$pageNumTitleAppend"]);
+	$meta[]=HTML_element('meta',['property'=>'og:title','content'=>"News$pageNumTitleAppend"]);
+	$meta[]=HTML_element('meta',['name'=>'description','content'=>file_get_contents("$_SERVER[DOCUMENT_ROOT]/../WAA_siteGen_demoSecure/blogs/news/blogDescription.txt").$pageNumDescriptionAppend]);
+	$meta[]=HTML_element('meta',['property'=>'og:description','content'=>file_get_contents("$_SERVER[DOCUMENT_ROOT]/../WAA_siteGen_demoSecure/blogs/news/blogDescription.txt").$pageNumDescriptionAppend]);
+		$meta[]=HTML_element('meta',['property'=>'og:url','content'=>"https://demo.greggoad.net/news/$pageNumUriAppend"]);
+		$meta[]=HTML_element('link',['rel'=>'canonical', 'href'=>"https://demo.greggoad.net/news/$pageNumUriAppend"]);
+	$meta[]=file_get_contents("$_SERVER[DOCUMENT_ROOT]/../WAA_siteGen_demoSecure/blogs/news/allMeta.html");
+}
+
+$metaHtml=join("\n",$meta);
+
+$pageLength=10;
+
+$offset=$pageNumber*$pageLength;
+
+$data=[];
+$max=0;
+
+$i=$offset;
+$h1Text="";
+if($category === "all"){
+	$result=$sqlite->query("
+		SELECT article, lastModified, timePublished, slug, pk, title, imgs, js, igniter, css,meta
+		FROM articles 
+		WHERE published=1
+		ORDER BY IFNULL(sortDate, timePublished) DESC
+		LIMIT $offset, $pageLength
+	");
+	
+	$max=intval($sqlite->querySingle("SELECT COUNT(*) FROM articles WHERE published=1;"));
+}else{
+	$stmt=$sqlite->prepare("
+		SELECT aa.article, aa.lastModified, aa.timePublished, aa.slug, aa.pk, aa.title, aa.imgs, aa.js, aa.igniter, aa.css, aa.meta
+		FROM articles aa 
+		JOIN categoryTies ct
+			ON ct.article=aa.pk
+		JOIN categories cc
+			ON cc.pk=ct.category
+		WHERE cc.slug=:cat AND published=1
+		ORDER BY IFNULL(aa.sortDate, aa.timePublished) DESC
+		LIMIT $offset, $pageLength");
+	$stmt->bindValue(':cat', $category, SQLITE3_TEXT);
+	$result=$stmt->execute();
+
+	$countStmt=$sqlite->prepare("SELECT COUNT(aa.pk) 
+		FROM articles aa 
+		JOIN categoryTies ct
+			ON ct.article=aa.pk
+		JOIN categories cc 
+			ON cc.pk=ct.category
+		WHERE cc.slug=:cat AND published=1
+	");
+	$countStmt->bindValue(':cat', $category, SQLITE3_TEXT);
+	$countResult=$countStmt->execute();
+	$countRow=$countResult->fetchArray(SQLITE3_NUM);
+	$max=intval($countRow[0]);
+}
+
+$i=0;
+while($row=$result->fetchArray(SQLITE3_ASSOC))
+{
+	$data[$i]=$row;
+	$i++;
+}
+
+$categoryList=[];
+
+$result=$sqlite->query("SELECT * FROM categories");
+
+while($row=$result->fetchArray(SQLITE3_ASSOC))
+{
+	array_push($categoryList, CategoryButton($row, ($row['slug'] === $category)));
+}
+
+if($categoryList){
+	array_unshift($categoryList, CategoryButton(['name'=>'All'], ($category === 'all')));
+}
+$categoryList=join("\n", $categoryList);
+
+$sqlite->close();
+
+unset($data['apple']);
+
+
+
+$listHtml=[];
+$resultTotalOffset=0;
+foreach($data as &$d)
+{
+	$resultTotalOffset++;
+	$imgs=json_decode($d['imgs'], true);
+	unset($d['css']);
+	unset($d['js']);
+	unset($d['igniter']);
+	unset($d['article']);
+	$d['thumb']='';
+	$d['thumbExt']='';
+	$d['thumbSizes']=[];
+	$d['thumbSlug']='';
+	$d['thumbMime']='';
+	$d['thumbName']='';
+	$d['thumbAlt']='';
+	$d['thumbWidth']=0;
+	$d['thumbHeight']=0;
+	
+	
+	foreach($imgs['list'] as $l)
+	{
+		if($l['shareImage']){
+			
+			$d['thumb']="/news/$d[slug]/imgs/$l[slug]/source.$l[ext]";
+			$d['thumbSizes']=json_decode($l['sizes']);
+			
+			natsort($d['thumbSizes']);
+			$d['thumbSizes']=array_values($d['thumbSizes']);
+			$d['thumbSizes']=array_reverse($d['thumbSizes']);
+			
+			$d['thumbName']=$d['thumbSlug']=$l['slug'];
+			$d['thumbExt']=$l['ext'];
+			$d['thumbAlt']=$l['alt'];
+			$d['thumbMime']=mime_content_type("$_SERVER[DOCUMENT_ROOT]$d[thumb]");
+			
+			$thumbSourceSize=getimagesize("$_SERVER[DOCUMENT_ROOT]/news/$d[slug]/imgs/$l[slug]/source.$l[ext]");
+			$d['thumbWidth']=150;
+			$d['thumbHeight']=floor(150*$thumbSourceSize[1]/$thumbSourceSize[0]);
+			
+			break;
+		}
+	}
+
+	
+	unset($d['imgs']);
+	$meta=json_decode($d['meta'], true);
+	unset($d['meta']);
+	$description=$meta['description'] ?? '';
+	$d['description']=$description;
+	
+	$thumbInsert='';
+	if($d['thumb']){
+		
+		$thumby=[
+			'tag'=>'img',
+			'properties'=>[
+				'class'=>'Blog-ArticleCard-Thumb',
+				'src'=>$d['thumb'],
+				'width'=>150,
+				'height'=>floor(150*$thumbSourceSize[1]/$thumbSourceSize[0])
+			]
+		];
+		if($d['thumbAlt']){
+			$thumby['properties']['alt']=$d['thumbAlt'];
+		}
+		if($d['thumbSizes']){
+			
+			unset($thumby['properties']['class']);
+			
+			$lastVal='';
+			$thumbInsert=[
+				'tag'=>'picture',
+				'properties'=>[
+					'class'=>'Blog-ArticleCard-Thumb',
+				],
+				'children'=>[
+					...array_map(function($a) use ($d, $row, &$lastVal){
+						$curval="/news/$d[slug]/imgs/$d[thumbName]/$a.$d[thumbExt]";
+						
+						$sz=explode("x", $a);
+						$ret= [
+							'tag'=>'source',
+							'properties'=>[
+								'srcset'=>$curval.(($lastVal)? " 1x, $lastVal 2x":''),
+								'media'=>'(min-width:'.floor($sz[0]*1.33333).'px)',
+								'type'=>$d['thumbMime'],
+								'width'=>$sz[0],
+								'height'=>$sz[1]
+							]
+						];
+						$lastVal=$curval;
+						return $ret;
+					},$d['thumbSizes']),
+					$thumby
+				]
+			];
+		}else{
+			$thumbInsert=$thumby;
+		}
+	}
+	
+	array_push($listHtml, '<div>'.HTML_element('a',[
+		'href'=>"/news/$d[slug]",
+		'class'=>'invisiAnchors'
+	],[
+		[
+			'tag'=>'div',
+			'properties'=>[
+				'class'=>'Blog-ArticleCard',
+				'onclick'=>"_el.CancelEvent(event); VCR.main.CHANGE('article',{article:'$d[slug]', articleTitle:'$d[title]'})"
+			],
+			'children'=>[
+				[
+					'tag'=>'div',
+					'properties'=>[],
+					'children'=>[
+						$thumbInsert,
+						['tag'=>'hr'],
+						[
+							'tag'=>'h2',
+							'properties'=>[
+								'class'=>'Blog-ArticleCard-Title'
+							],
+							'children'=>[
+								$d['title']
+							]
+						]
+					]
+				],
+				[
+					'tag'=>'div',
+					'properties'=>[
+						'class'=>'Blog-ArticleCard-DescriptionContainer'
+					],
+					'children'=>[
+						$description?[
+							'tag'=>'p',
+							'children'=>[$description]
+						] : ''
+					]
+				],
+				[
+					'tag'=>'div',
+					'properties'=>[
+						'class'=>'Blog-ArticleCard-CategoryContainer'
+					],
+					'children'=>[]
+				],
+			]
+		]
+	]).'</div>');
+}
+unset($d);
+
+$blogCategoryList=[];
+	$blogCategoryList[$category]=[
+		'list'=>(object)$data,
+		'maxResults'=>$max
+	];
+
+$noResults=false;
+if(!$listHtml){
+	$noResults=true;
+	array_push($listHtml, "<div class=\"Blog-NoResults\">No Results</div>");
+}
+
+$rootHref="/news";
+
+if($category !== 'all'){
+	$rootHref.="/c/$category";
+	$h1Text="$categoryTitle Articles";
+}else{
+	$h1Text="News Articles";
+}
+
+if($offset+$resultTotalOffset === $max){
+	if(!$noResults){
+		$listHtml[]="<div>End of Results</div>";
+	}
+}else{
+	$listHtml[]=HTML_element("a", [
+		'href'=>$rootHref."/".($pageNumber+1),
+		'class'=>'invisiAnchors'
+	], [
+		[
+			'tag'=>'button',
+			'properties'=>[
+				'class'=>'Blog-PageButtons',
+				'id'=>'Blog-NextButton',
+				'onclick'=>"_el.CancelEvent(event); categoryPage++; VCR.main.CHANGE('category', {category:activeCategory, page:categoryPage});"
+			],
+			'children'=>["Next"]
+		]
+	]);
+}
+if($pageNumber > 0){
+	$listHtml[]=HTML_element("a", [
+		'href'=>$rootHref.(($pageNumber-1) ? ("/".($pageNumber-1)):''),
+		'class'=>'invisiAnchors'
+	], [
+		[
+			'tag'=>'button',
+			'properties'=>[
+				'class'=>'Blog-PageButtons',
+				'id'=>'Blog-PrevButton',
+				"onclick"=>"_el.CancelEvent(event); categoryPage--; VCR.main.CHANGE('category', {category:activeCategory, page:categoryPage});"
+			],
+			'children'=>["Prev"]
+		]
+	]);
+	$pn=$pageNumber+1;
+	$h1Text.=": Page $pn";
+}
+array_unshift($listHtml, "<h1>$h1Text</h1>");
+$listHtml=join("\n",$listHtml);
+
+
+
+die(Unirep(file_get_contents("$_SERVER[DOCUMENT_ROOT]/../WAA_siteGen_demoSecure/blogs/news/app.html.temp"), [
+	'`--Blog-Js-CategoryLists--`'=>json_encode($blogCategoryList),
+	
+	'`--Blog-Js-Articles--`'=>'{}',
+	'`--Blog-Js-ArticleIgniters--`'=>'',
+	
+	'`--Blog-Js-SavedList--`'=>'""',
+	'`--Blog-Js-ActiveCategory--`'=>sQuote($category),
+	'`--Blog-Js-CategoryPage--`'=>'parseInt('.sQuote($pageNumber).')',
+	'`--Blog-Js-ActiveView--`'=>'"category"',
+	'`--Blog-Js-ViewData--`'=>json_encode([
+		'category'=>$category,
+		'categoryTitle'=>'',
+		'pageNumber'=>$pageNumber
+	]),
+	
+	'`--Blog-ClassActiveSwitch--`'=>'Blog-ListActive Blog-ListActive-'.$category,
+	'`--Blog-CategoryListTarget--`'=>$categoryList,
+	'`--Blog-ListContent--`'=>$listHtml,
+	'`--Blog-ArticleContent--`'=>'',
+	
+	'`--Blog-Meta--`'=>$metaHtml,
+	'`--Blog-NavButtonHref--`'=>'/',
+	'`--Blog-NavButtonInnards--`'=>'Home Page',
+	'`--Blog-SpecificJs--`'=>''
+	
+]));
+?>

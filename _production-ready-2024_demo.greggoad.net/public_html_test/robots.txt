@@ -1,0 +1,2 @@
+Sitemap: https://demo.greggoad.net/sitemap.xml
+Sitemap: https://demo.greggoad.net/news/sitemap.xml

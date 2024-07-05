@@ -4,6 +4,7 @@
 <body>
 <h2>Project List</h2>
 <ul>
+<li><b>PRODUTION READY demo.greggoad.net (2024)</b>: This is the whole production code of GregGoad.net, with all of the sensitive information changed. This should be seen as my understanding of how a web applcation should be structured. All of the other excepts are from tools used to create this site, and are a mess.</li>
 <li><b>Static Site Generator (2023)</b>: A program that takes a very large and complex form, and passes the result to a script that renders out an operational file-cluster that is the whole website.</li>
 <li><b>GGHire Me Site Form (2023)</b>: This program was a complex form that took information about my experience and allowed me to tie everything together via a GUI. Then, the result is passed to a script that fills out the form in the site generator, to be rendered and then published.</li>
 <li><b>Daily Wizard (2022)</b>: A wizard to run daily to organize data and schedule work.</li>
@@ -16,6 +17,9 @@ or PHP regular expressions for SQLite or MySQL. The front end it targets is a cu
 <h1>Real Proof</h1>
 <p>
 Before this repository, my GitHub had very little PHP on it... yet, I've written over 100 thousand lines of it! This repository is an attempt to fix that. 
+</p>
+<p>
+	The production-ready demo should be used as a judge of my idealic code structure and style. The rest are rushed MVPs that were really never meant to be shared, but are solutions to complex problems. 
 </p>
 <p>
 I can't share the vast majority of the work I've done for other people (for obvious reasons), but I can share is code out of my own codebase. 

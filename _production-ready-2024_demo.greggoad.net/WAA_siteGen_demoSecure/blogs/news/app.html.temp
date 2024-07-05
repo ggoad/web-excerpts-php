@@ -1,0 +1,1753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	`--Blog-Meta--`
+	<link rel="apple-touch-icon" sizes="180x180" href="/media/icons/regalG/180.png" />
+<link rel="apple-touch-icon" sizes="152x152" href="/media/icons/regalG/152.png" />
+<link rel="apple-touch-icon" sizes="120x120" href="/media/icons/regalG/120.png" />
+<link rel="icon" sizes="16x16" href="/media/icons/regalG/16.png" />
+<link rel="icon" sizes="32x32" href="/media/icons/regalG/32.png" />
+<link rel="icon" sizes="57x57" href="/media/icons/regalG/57.png" />
+<link rel="icon" sizes="76x76" href="/media/icons/regalG/76.png" />
+<link rel="icon" sizes="96x96" href="/media/icons/regalG/96.png" />
+<link rel="icon" sizes="120x120" href="/media/icons/regalG/120.png" />
+<link rel="icon" sizes="128x128" href="/media/icons/regalG/128.png" />
+<link rel="icon" sizes="144x144" href="/media/icons/regalG/144.png" />
+<link rel="icon" sizes="152x152" href="/media/icons/regalG/152.png" />
+<link rel="icon" sizes="167x167" href="/media/icons/regalG/167.png" />
+<link rel="icon" sizes="180x180" href="/media/icons/regalG/180.png" />
+<link rel="icon" sizes="192x192" href="/media/icons/regalG/192.png" />
+<link rel="icon" sizes="195x195" href="/media/icons/regalG/195.png" />
+<link rel="icon" sizes="196x196" href="/media/icons/regalG/196.png" />
+<link rel="icon" sizes="228x228" href="/media/icons/regalG/228.png" />
+<link rel="shortcut icon" sizes="196x196" href="/media/icons/regalG/196.png" />
+<meta name="msapplication-TileImage" content="/media/icons/regalG/144.png" />
+
+	
+<script>// START _object
+_ob=_object={
+        COPY_proto:(function(){
+	  function Temp(){}
+	    return function(O){
+	      if(typeof O != "object"){
+		throw TypeError("Object prototype may only be an Object or null");
+	      }
+		Temp.prototype=O;
+		var obj=new Temp();
+		Temp.prototype=null;
+	      return obj;
+	   }
+	})(),
+	IS_array:function(a){
+		if(Array.isArray && Array.isArray(a)){
+                   return true;
+                }if(typeof a === "object" && a.constructor === Array){
+			return true;
+		}return false;
+	},
+	IndexedObject:function(arr){
+		this._enum=[];
+		this._map={};
+		this.length=0;
+		if(_ob.IS_array(arr)){
+			for(var i=0; i<arr.length; i++)
+			{
+				this.PUSH(arr[i]);
+			}
+		}
+	},
+	COMBINE:function(ob1, ob2){
+		ob1=ob1 || {};
+		ob2=ob2 || {};
+		var ret={};
+		this.INSERT(ret, ob1);
+		this.INSERT(ret, ob2);
+		return ret;
+	},
+	INSERT:function(reciever, con){
+		con = con || {};
+		for(var mem in con)
+		{
+			reciever[mem]=con[mem];
+		}
+	},
+        PARSE_default:function(def,set){
+           return this.COMBINE(def,set);
+        },
+        Keysort:function(obj, recur, depth){
+           depth=depth || 0;
+           depth++;
+           var ordered=Object.keys(obj).sort().reduce(function(o,key){
+              if(recur && typeof obj[key] === "object" && depth < 10){
+                 obj[key]=this.Keysort(obj[key], true, depth);
+              }
+              o[key]=obj[key];
+              return o;
+           });
+           return ordered;
+        },
+        COMPARE:function(ob1, ob2){
+            if(typeof ob1 !== "object" || typeof ob2 !== "object"){return false;}
+            if(Object.keys(ob1).length !== Object.keys(ob2).length){return false;}
+            var cmp=true;
+            for(var mem in ob1)
+            {
+               if(typeof ob1[mem] === "object"){
+                  cmp=this.COMPARE(ob1[mem], ob2[mem]);
+               }else{
+                  cmp=(ob1[mem] === ob2[mem]);
+               }
+               if(!cmp){return false;}
+            }
+            return true;
+        },
+        CLONE_depthLimit:20,
+	CLONE:(function(){
+		return function(obj, depth, callDepth){
+			depth=depth || 1;
+			callDepth=callDepth || 0;
+			if(depth === -1){
+				depth = this.CLONE_depthLimit;
+				if(callDepth === this.CLONE_depthLimit){
+					throw new TypeError("Depth limit reached: ", obj);
+					return obj;
+				}
+			}
+			
+			if((obj === null || typeof obj !== "object") || (callDepth === depth || callDepth === this.CLONE_depthLimit)){
+				return obj;
+			}
+			if(obj instanceof Date){
+				return new Date(obj.getTime());
+			}
+			if(this.IS_array(obj)){
+				var retArr=[];
+				for(var i=0; i<obj.length; i++)
+				{
+					
+					retArr[i]=this.CLONE(obj[i], depth, callDepth+1);
+				}
+				return retArr;
+			}
+			
+			if(obj.CLONE){
+				return obj.CLONE();
+			}
+			var ret={};
+			for(var mem in obj)
+			{
+				if(obj.hasOwnProperty(mem)){
+					ret[mem]=this.CLONE(obj[mem], depth, callDepth+1);
+				}
+			}
+			return ret;
+		}
+	})()
+};
+
+_ob.IndexedObject.prototype.PUSH=function(a){
+	var ret=this._enum.length;
+	this._map[a]=this._enum.length;
+	this._enum.push(a);
+	this.length++;
+	return ret;
+}
+_ob.IndexedObject.prototype.GET_nameSafe=function(a){
+    a=parseInt(a);
+    if(!isNaN(a) && a>=0 && a<this.length){
+       return this._enum[a];
+    }return false;
+}
+_ob.IndexedObject.prototype.GET_name=function(a){
+	a=parseInt(a);
+	if(!isNaN(a) && a>=0 && a<this.length ){
+		return this._enum[a];
+	}throw new TypeError("Not a number, or out of range");
+}
+_ob.IndexedObject.prototype.GET_numSafe=function(a){
+   a=""+a;
+   if(typeof this._map[a] !== "undefined"){
+      return this._map[a];
+   }return false;
+}
+_ob.IndexedObject.prototype.GET_num=function(a){
+	a=""+a;
+	if(typeof this._map[a] !== "undefined"){
+		return this._map[a];
+	}throw new TypeError("Not a valid member: "+a);
+}
+_ob.IndexedObject.prototype.GET_names=function(a){
+   return this._enum;
+}
+// END _object
+/* START _element */
+_el={
+	/* cancel an event */
+    CancelEvent:function(e){e.preventDefault(); e.cancelBubble=true;},
+	/* move an id from 1 element to another */
+    MoveId:function(id,el){
+       (document.getElementById(id) || {}).id='';
+       el.id=id;
+    },
+	/* this is a helper for CREATE */
+    PARSE_element:function(a){
+       if(typeof a === "string"){return this.TEXT(a);}
+       return a;
+    },
+	/* remove an element */
+	REMOVE:function(e){
+		if(e && e.parentNode){e.parentNode.removeChild(e);}
+	},
+	/* append an element to a parent, returns the parent */
+	APPEND:function(p,c){
+		if(Array.isArray(c)){
+			for(var i=0; i<c.length; i++)
+			{
+				p.appendChild(this.PARSE_element(c[i]));
+			}
+		}else{
+			p.appendChild(this.PARSE_element(c));
+		}
+		return p;
+	},
+	/* append an element to a parent, returns the child */
+	_APPEND:function(p,c){
+		if(Array.isArray(c)){
+		   c.forEach(function(a){p.appendChild(_el.PARSE_element(c));});
+		}else{p.appendChild(this.PARSE_element(c));}
+			
+
+		return c;
+	},
+	/* 
+		create an element: 
+			tp is the tag name 
+			id is id
+			className is className 
+			otherMemOb 
+				is anything to insert as a property on the element
+				two special properties:
+					'style'
+						and
+					'attributes'
+			append 
+				an array of elements to append to the created element
+				raw strings are created as text nodes
+	*/
+	CREATE:function(tp, id, className, otherMemOb, append){
+		var ret=document.createElement(tp);
+		if(id){
+			ret.id=id;
+		}
+		if(className){
+			ret.className=className;
+		}
+		if(otherMemOb){
+			for(var mem in otherMemOb)
+			{
+				if(mem === "style"){
+					for(var s in otherMemOb[mem])
+					{
+						ret.style[s]=otherMemOb[mem][s];
+					}
+				}else if(mem === 'attributes'){
+					for(var a in otherMemOb[mem]){ret.setAttribute(a, otherMemOb[mem][a]);}
+				}else{
+					ret[mem]=otherMemOb[mem];
+				}
+			}
+		}
+		if(append){
+		   this.APPEND(ret, append);
+		}
+		return ret;
+	},
+	/* create a text node */
+	TEXT:function(txt){
+		return document.createTextNode(txt);
+	},
+	/* removes all child elements */
+	EMPTY:function(el){
+		if(el && el.childNodes){
+			for(var i=0; i<el.childNodes.length; i++)
+			{
+				if(el.childNodes[i]){
+					el.removeChild(el.childNodes[i]);
+					i--;
+				}
+			}
+		}
+	}
+};
+
+
+/* END _element */
+/* this is just so we have a function when we have to execute something,
+// so we don't have to create an empty function every time (expensive in JS) */
+function DUMMY_FUNCT(){}
+_fun={
+	curryScope:function(fun,scp){
+		return function(){
+			fun.apply(scp,arguments);
+		};
+	},
+	curryArgs:function(fun, arg){
+		if(!Array.isArray(arg)){throw new TypeError('Arg must be an array');}
+		return function(){
+			fun.apply({}, arg);
+		};
+	},
+	curryScopeArgs:function(fun,scp,arg){
+		if(!Array.isArray(arg)){throw new TypeError('Arg must be an array');}
+		return function(){
+			fun.apply(scp,arg);
+		};
+	},
+	/* run an array of functions. keep indicates whether to erase the array after */
+	RunQue:function(arr, keep){
+	   arr.forEach(function(a){a();});
+	   if(!keep){arr.length=0;}
+	}
+};
+_hist={
+	incrId:0,
+   firstHistory:true,
+   uriOb:{},
+	url:false,
+   logflag:true,
+   documentTitle:'',
+   globOb:null,
+   GRAB_addr:function(){
+      if(history && history.state && history.state.VCR){
+         var VCRaddr=history.state.VCR;
+         for(var mem in VCRaddr)
+         {
+             VCR[mem].historyChange=true;
+             VCR[mem].stagedView=''+VCRaddr[mem].view;
+             if(VCRaddr[mem].viewData){
+                VCR[mem].PUSH_viewData(VCRaddr[mem].viewData);
+             }
+         }
+      }
+	   
+   }
+};
+
+
+if(history && history.state && history.state.stateId){
+	_hist.incrId=history.state.stateId;
+}
+
+if(history && history.pushState){
+   VC.prototype.LOG_change=function(){
+          var uriOb={};
+          
+                   
+		  for(var mem in VCR)
+		  {
+			 if(VCR[mem].active && !VCR[mem].config.noLog){
+                                var view;
+				uriOb[mem]={
+                                   view:(view=VCR[mem].currentView)
+                                };
+                                var vd=VCR[mem][VCR[mem].GET_viewName()].viewData;
+                                if(!Object.keys(vd).length){vd=false;}
+                                if(vd){
+                                   uriOb[mem].viewData=VCR[mem][VCR[mem].GET_viewName()].viewData;
+                                }
+                                if(VCR[mem].captured){
+                                   uriOb[mem].captured=true;
+                                }
+			 }
+		  }
+		  var globOb=_hist.globOb || {};
+                  if(_hist.logflag){
+		     if(!_hist.firstHistory && !_ob.COMPARE(uriOb, _hist.uriOb)){
+  		       _hist.incrId++;
+			   history.pushState(_hist.lastState=_ob.COMBINE({VCR:uriOb, stateId:_hist.incrId}, globOb),"",_hist.url || undefined);  
+		     }else{
+   	 		_hist.firstHistory=false;
+  
+			    history.replaceState(_hist.lastState=_ob.COMBINE({VCR:uriOb, stateId:_hist.incrId},globOb),"", _hist.url || undefined);  
+		     }
+                     
+                  }
+                   
+			_hist.url=false;
+                  _hist.uriOb=uriOb;
+                  if(_hist.documentTitle){document.title=_hist.documentTitle; _hist.documentTitle="";}
+	  
+   };
+   onpopstate=function(){
+           var state=history.state;
+           if(!state){
+              history.replaceState(_hist.lastState,'',location.href);
+              return;
+           }else{
+              state=state.VCR;
+           }
+           _hist.GRAB_addr();
+           _hist.logflag=false;
+           for(var mem in state)
+           {
+              if(!state[mem].captured){
+                 VCR[mem].CHANGE();
+              }
+           }
+	   _hist.logflag=true;
+   };
+}else{
+   console.warn('no history supported');
+}
+/*
+	@param targetFunct : function : opt : a function to return the element that the controler has control over
+	@param insertOb    : object   : opt : an object to insert any object values into the controler that you want
+	@param config      : object   : opt : an object for the configuration 
+			config structure:{
+				noLog       : bool   : set to true to not register any changes in the history,
+				noLogByView : object : disable logging for individual views by their numeric index
+			}
+			
+	This is the main constructor of the library.
+	
+	I hope the arguments are all self explanitory. They are all optional.
+	
+	One important note about useage. To instantiate a controler, please use this form:
+	
+        VVV Use whatever name you want
+	VCR.main = new VC();
+	
+	The history library assumes you instantiated this in this fashion, and iterates though the VCR variable when saving application state.
+*/
+
+function VC(targetFunct, insertOb, config){
+	/* view indexes */
+	this.currentView=0;
+	this.previousView=0;
+	this.nextView=0;
+	
+	/* a list of functions */
+	this.views=[];
+	
+	/* 
+		these maps map the names and indexes between each other. 
+		Safe map can convert both an index and a name back to an index.
+	*/
+    this.indexMap={}; 
+    this.safeMap={};
+
+	/* overwrites the target funct if one has been provided. */
+	if(targetFunct){
+		this.targetFunct=targetFunct;
+	}
+
+	
+	this.active=false;
+	this.config=config || {};
+	this.activeConfig=this.config;
+	
+	
+	/* event ques */
+	this.onchange=[];
+	this.afterchange=[];
+	this.onrelease=[];
+	this.onlaunch=[];
+	
+	this.historyChange=null;
+	
+	
+	this.captured=false;
+	this.capParent=null;
+	this.capTargetFunct=null;
+	this.capConfig=null;
+	this.capChildren=[];
+
+	/* these registries can be used to register things that need cleaning up upon change */
+	this.reg_elements=[];
+	this.reg_timeouts=[];
+	this.reg_intervals=[];
+	this.reg_goodObjects=[];
+	
+	if(insertOb){
+		for(var mem in insertOb)
+		{
+		   if(typeof this[mem] !== "undefined"){
+			  throw new TypeError("The member "+mem+" already exists in the view controller");
+		   }
+		   this[mem]=insertOb[mem];
+		}
+	}
+}
+VC.prototype.is_VC=true; /* a quick check so you don't have to check against prototype */
+
+/* This function is the default target function. This is called to indicate the container that the view controller has control of. */
+VC.prototype.targetFunct=function(){
+	return document.body;
+}
+
+/* returns a lits of the names of all the views */
+VC.prototype.GET_viewList=function(){
+   return Object.values(this.indexMap);
+}
+
+/*
+@param emptyTarget : bool : opt : set to true to empty the target element before returning
+
+This function gets the element that the view controler is in charge of.
+*/
+VC.prototype.GET_target=function(emptyTarget){
+	var ret;
+	if(this.captured && this.capTargetFunct){
+		ret=this.capTargetFunct();
+	}else{
+		ret=this.targetFunct();
+	}
+	if(emptyTarget){
+		_el.EMPTY(ret);
+	}
+	return ret;
+}
+
+/*
+
+@param v : (int | string) : opt : the name or index of a view
+
+This function gets the name of the a view by either the index or the name. 
+
+If v is not provided, the current view of the view controler is returned.
+*/
+VC.prototype.GET_viewName=function(v){
+    return this.indexMap[this.safeMap[v || this.currentView]];
+}
+
+/*
+@param dat : object : req : an object to be the view data associated with the view.
+
+This function is here to not only set the view data of a view,
+but to also register a listener to reset the view data of a view onchange,
+so that the data doesn't hang around when re-visiting a view
+*/
+VC.prototype.REGISTER_viewData=function(dat){
+   var nm=this.GET_viewName();
+   this[nm].viewData=dat;
+   var sv=this[nm];
+   this.REGISTER_changeANDrelease(function(){sv.viewData={};});
+   
+}
+
+/*
+@param dat : object : req : an object to be the view data associated with the view.
+
+This function is here to pre-set the view data of an upcoming view, 
+so that the history imprint stays in sync. This is called from the history library.
+*/
+VC.prototype.PUSH_viewData=function(dat){
+   this.stagedViewData=dat;
+}
+
+/* returns the view data of the current view */
+VC.prototype.GET_viewData=function(){
+   return this[this.GET_viewName()].viewData;
+}
+
+/*
+	@param name     : string   : req : a string to name the view.
+	@param f        : function : req : a function with 1 argument (the parent view controller) to modify the container
+	@param insertOb : object   : opt : this object is for the data-holding of the view. It can be anything you want, but viewData is reserved for use the view data to be saved with the view history
+	@param config   : object   : opt : this object is for the view configuration. Currently unused
+	
+	This function registers the view with the view controler. 
+	
+	It pushes the callback function onto the views array, and registers the name in all of the necessary mapping objects.
+	
+	The insertOb is where you can indicated default viewData. 
+	
+	Right now, the config is unused.
+	
+*/
+VC.prototype.REGISTER_view=function(name, f, insertOb, config){
+        if(typeof this[name] !== "undefined"){throw new TypeError('Name already exists on this view controller: '+name);}
+	this.views.push(f);
+        if(insertOb && !insertOb.viewData){insertOb.viewData={};}
+	this[name]=insertOb || {viewData:{}};
+         var i=this.views.length-1;
+         this.safeMap[name]=i; this.safeMap[i]=i;
+         this.indexMap[i]=name;
+	this.config[name]=config || {};
+}
+
+/* registers a function to be called upon change or realease */
+VC.prototype.REGISTER_changeANDrelease=function(f){
+        this.onrelease.push(f);this.onchange.push(f);
+}
+
+/* registers a function to be called upon release */
+VC.prototype.REGISTER_release=function(f){
+   this.onrelease.push(f);
+}
+
+/* registeres an object to have for  o.good=false; upon change */
+VC.prototype.REGISTER_goodObject=function(o){
+	this.reg_goodObjects.push(o);
+	return o;
+}
+
+/* registers an element to be removed upon change */
+VC.prototype.REGISTER_element=function(e){
+    this.reg_elements.push(e);
+    return e;
+}
+
+/* registers a timeout to be cleared upon change */
+VC.prototype.REGISTER_timeout=function(t){
+    this.reg_timeouts.push(t);
+    return t;
+}
+
+/*  registers an interval to be canceled upon change. */
+VC.prototype.REGISTER_interval=function(i){
+    this.reg_intervals.push(i);
+    return i;
+}
+
+/* iterates through all of the registries and cleans up with the apropriate action */
+VC.prototype.CLEANUP=function(){
+    while(this.reg_elements.length){
+           _el.REMOVE(this.reg_elements.pop());
+        }
+        while(this.reg_timeouts.length){
+           clearTimeout(this.reg_timeouts.pop());
+        }
+        while(this.reg_intervals.length){
+           clearInterval(this.reg_intervals.pop());
+        }
+		while(this.reg_goodObjects.length){
+			var r=this.reg_goodObjects.pop().good=false;
+			if(r.target){_el.REMOVE(r.target);}
+		}
+        while(this.capChildren.length)
+        {this.capChildren.pop().RELEASE();}
+}
+
+/*
+	@param v      : int|string : opt : the view you want to change to
+	@param dat    : object     : opt : an object to register 
+	@param f      : function   : opt : a function to be called after the change has taken place
+	@param config : object     : opt : a configuration object to overwrite the config of the VC 
+		config sturcture{
+			noLog : bool : set to true to not log in the history
+		}
+		
+	This is the meat an potatoes.
+	
+	Call this function to change the view 
+	
+	v can be an index or the name of a view... 
+	
+	OR v can be omitted, and it'll change to this.stagedView || this.currentView
+*/
+VC.prototype.CHANGE=function(v, dat, f, config){
+	VC.prototype.VCR_depth++;
+	switch(typeof v){
+		case "string":
+		case "number":
+		   break;
+		 default:
+			v=this.stagedView || this.currentView;
+			this.stagedView='';
+			break;
+	}
+	this.CLEANUP();
+	var arr, arr2;
+	if(this.views.length){
+		v=this.safeMap[v];
+		this.previousView=this.currentView;
+		this.currentView=v;
+	
+
+
+		this.active=true;
+		var lgger;
+		if(
+			!this.config.noLog 
+			&& (!config || config && !config.noLog) 
+			&& (!this.config.noLogByView || !this.config.noLogByView[v])
+			&& this.VCR_depth === 1
+		){
+			lgger=this.LOG_change;
+		}
+		VC.prototype.VCR_depth--;
+
+		if(this.stagedViewData){
+			dat=this.stagedViewData; this.stagedViewData=null;
+		}
+
+		_fun.RunQue([
+			_fun.curryArgs(_fun.RunQue, [this.onchange]),
+			_fun.curryScope(function(){if(dat){this.REGISTER_viewData(dat);}}, this),
+			_fun.curryArgs(this.views[v],[this]),
+			_fun.curryArgs(_fun.RunQue, [this.afterchange]),
+			f || DUMMY_FUNCT, 
+			_fun.curryScope(lgger || DUMMY_FUNCT,this)
+		]);
+		this.historyChange=null;
+	}
+}
+
+/* this is used to determine when it's time to write to the browser's history */
+VC.prototype.VCR_depth=0; 
+
+/*
+	@param v      : string|int : opt : v is the view to launch into
+	@param dat    : object     : opt : dat is the viewData object to pass to CHANGE
+	@param f      : function   : opt : f is a function to be called after the change
+	@param config : object     : opt : config is a config to overwrite the config of the VC
+	
+	This function launches a view from the view function of another view controler.
+	
+	It needs to be differentiated from change because of reasons that have to do with the history registry.
+*/
+VC.prototype.LAUNCH=function(v, dat, f, config){
+	_fun.RunQue([
+		_fun.curryArgs(_fun.RunQue, [this.onlaunch, true]),
+		_fun.curryScopeArgs(this.CHANGE, this, [v,dat,f,config])
+	]);
+}
+
+/*
+	@param par  : VC       : req : the VC that is capturing the VC
+	@param tar  : function : req : a function to return the new target
+	@param conf : object   : opt : an object to overwrite the default configuration of the vc
+	
+	This function captures a VC, changing its behaviour to yield to the parent VC.
+*/
+VC.prototype.CAPTURE=function(par, tar, conf){
+	conf=conf || {};
+	if(par && par.is_VC){
+		par.capChildren.push(this);
+		this.captured=true;
+		this.capParent=par;
+		this.capTargetFunct=tar;
+		this.capConfig=_ob.COMBINE(this.config, conf);
+		this.activeConfig=this.capConfig;
+	}else{
+		throw new TypeError("par was not a view controler...", par);
+	}
+}
+
+/* this function releases a view controler, and returns it to its default behavior */
+VC.prototype.RELEASE=function(){
+    this.active=false;
+	this.captured=false;
+	this.capParent=undefined;
+	this.capTargetFunct=undefined;
+	this.capConfig=undefined;
+	this.activeConfig=this.config;
+    this.CLEANUP();        
+	_fun.RunQue(this.onrelease);
+	_fun.RunQue(this.onchange);
+	if(this.config.resetViewOnRelease){
+		if(this.historyChange === true){
+			this.historyChange=null;
+		}else{
+			this.currentView=0;
+		}
+	}
+}
+
+/* go to next view */
+VC.prototype.INCR=function(){
+    this.CHANGE((this.currentView+1)%this.views.length);
+}
+
+/* go to previous view */
+VC.prototype.DECR=function(){
+    var c=this.currentView-1; 
+    if(c<0){c=this.views.length-1;}
+    this.CHANGE(c);
+}
+
+/* asks if a particular view is present in the view controler */
+VC.prototype.HAS_view=function(str){
+    return (Object.values(this.safeMap).indexOf(str) >= 0);
+}
+
+/* the global variable to hold all your VC instantiations.
+	the history library looks here to save view state.*/
+var VCR={};
+function ElFetch( target,fetchMessage, file, config, responseType,responseHandlers,disablers){
+    /*
+      target: element to be the target,
+      fetchMessage: a node to be appended to the target, 
+     
+         file:string, 
+         config (the config of the actual call to fetch): {body:string, method:'POST', etc...}, 
+         responseType: string json | text 
+    */
+    /* responseHandlers ={
+         success: function(result, target){} to be fired on success
+         fail: function(error, target){} to be fired on failure,
+         overrideMsg: if you only want to display a single message on failure
+       }
+    */
+    config=config || {};
+    disablers=disablers || {};
+    if(disablers.button){
+       disablers.button.setAttribute('disabled','');
+    }else if(disablers.form){
+       var oldListener=disablers.form.onsubmit;
+       disablers.form.onsubmit=function(e){
+            e.stopImmediatePropagation();
+            e.preventDefault();
+            e.cancelBubble=true;
+       }
+    }else if(disablers.fieldset){
+       disablers.fieldset.setAttribute('disabled','');
+    }
+    if(typeof fetchMessage === 'string'){fetchMessage=_el.TEXT(fetchMessage);}
+    _el.APPEND(target, fetchMessage);
+    fetch(file,config)
+    .then(function(res){
+        _el.REMOVE(fetchMessage);
+        console.log("fetchResult:",res, res.status);
+        if(parseInt(res.status) >= 400){
+            console.log(file+" errorStatus: "+res.status);
+            throw new Error("Server Error "+res.status);
+        }
+        return res[responseType]();
+    }).then(function(rt){
+        if(disablers.button){
+           disablers.button.removeAttribute('disabled');
+        }else if(disablers.form){
+           disablers.form.onsubmit=oldListener;
+        }else if(disablers.fieldset){
+           disablers.fieldset.removeAttribute('disabled');
+        }
+        if((responseType === 'json' &&  rt.success) || rt === "SUCCESS"){
+            _el.REMOVE(fetchMessage);
+            responseHandlers.success(rt,target);
+        }else{
+            console.log('error', rt);
+            var err= new Error(responseHandlers.overrideMsg || "Error Processing: "+((responseType === "json") ? (rt.msg || '') : rt || ''));
+            err.dat=rt;
+            throw err;
+        }
+        
+    }).catch(function(e){
+        _el.REMOVE(fetchMessage);
+        if(disablers.button){
+           disablers.button.removeAttribute('disabled');
+        }else if(disablers.form){
+           disablers.form.onsubmit=oldListener;
+        }else if(disablers.fieldset){
+           disablers.fieldset.removeAttribute('disabled');
+        }
+        console.log(e, e.dat || '');
+        if(responseHandlers.fail){
+           setTimeout(responseHandlers.fail(e,target), 1);
+        }
+        _el.REMOVE(fetchMessage);
+        var m=e.message;
+        if(e.message === 'Failed to fetch'){
+            m=("There was a problem submitting. Possibly a network error. Please try again.");
+        }
+        console.log(file+" Fetch Error: "+m);
+		if(!responseHandlers.quietError){
+			_el.APPEND(target, m);
+		}
+    });
+}</script>
+
+<script>SoftNotification={
+   Render:function(body, fadeOutDur){
+      fadeOutDur=fadeOutDur || 1000;
+      var r;
+      _el.APPEND(document.body, r=_el.CREATE('div','','SoftNotification-Wrapper',{},[
+         _el.CREATE('div','','SoftNotification-ActionWrapper',{},[_el.CREATE('button','','',{onclick:function(){_el.REMOVE(this.parentNode.parentNode);}},["X"])]),
+         _el.CREATE('div','','SoftNotification-BodyWrapper',{},body)
+      ]));
+      r.style.opacity='0';
+      setTimeout(function(){
+         r.style.opacity='1';
+         if(fadeOutDur === -1){return;}
+         setTimeout(function(){
+            r.style.opacity="0";
+            setTimeout(function(){_el.REMOVE(r);},501);
+         },fadeOutDur+501);
+      },1);
+   }
+};</script><style>.SoftNotification-Wrapper{
+   background-color:lightBlue;
+   border:2px solid orange;
+   border-radius:10px;
+   position:fixed;
+   bottom:1%;
+   right:1%;
+   max-width:300px;
+   padding:8px;
+   transition:opacity 500ms;
+   color:black;
+   
+}
+
+.SoftNotification-ActionWrapper{
+   text-align:right; 
+   padding:2px;
+   margin-bottom:3px;
+}
+.SoftNotification-ActionWrapper button{
+
+}
+
+.SoftNotification-BodyWrapper{
+   padding:2px;
+}</style>
+<script src="/js_library/cookieManager.js"></script><link rel="stylesheet" href="/js_library/cookieManager.css"/>
+
+<script>
+// blog data
+var activeView=`--Blog-Js-ActiveView--`;
+var categoryLists=`--Blog-Js-CategoryLists--`;
+var articles=`--Blog-Js-Articles--`;
+`--Blog-Js-ArticleIgniters--`
+
+var resultPageLength=10;
+
+var savedList=`--Blog-Js-SavedList--`;
+var activeCategory=`--Blog-Js-ActiveCategory--`;
+var categoryPage=`--Blog-Js-CategoryPage--`;
+
+var savedCategoryVd;
+
+</script>
+<script>
+function BlogBasicLoadPlaceholder(txt){
+	return _el.CREATE('h2','','BlogBasicLoadPlaceholderParent',{},[
+		_el.CREATE('span','','',{},['X']),
+		" Loading "+txt+' ',
+		_el.CREATE('span','','',{},['X'])
+	]);
+}
+var BlogArticleLoadPlaceholder=function(name){return BlogBasicLoadPlaceholder("the Article: "+name);};
+var BlogCategoryLoadPlaceholder=function(name, page){return BlogBasicLoadPlaceholder((name? name+' ':'')+"Articles"+(page ? ': Page '+page :''));};
+
+var bodyTimeout;
+VCR.main=new VC(function(){return document.body;});
+
+VCR.main.active=true;
+
+
+
+
+VCR.main.REGISTER_view("category",function(a){
+	function ListMember(info){
+		//console.log(info);
+		
+		var thumb='';
+		var imgProps={
+			src:info.thumb,
+			width:info.thumbWidth,
+			height:info.thumbHeight
+		};
+		
+		if(info.thumbAlt){imgProps.alt=info.thumbAlt;}
+		
+		if(info.thumbSizes.length){
+			thumb=_el.CREATE('picture','','Blog-ArticleCard-Thumb',{},[
+				...info.thumbSizes.map(function(ts, i){
+					var sz=ts.split('x');
+					return _el.CREATE('source','','',{
+						srcset:'/news/'+info.slug+'/imgs/'+info.thumbSlug+'/'+ts+'.'+info.thumbExt+
+								((i>0)?' 1x, '+'/news/'+info.slug+'/imgs/'+info.thumbSlug+'/'+info.thumbSizes[i-1]+'.'+info.thumbExt+' 2x' :''),
+						media:'(min-width:'+Math.floor(sz[0]*1.333)+'px)',
+						type:info.thumbMime,
+						width:sz[0],
+						height:sz[1]
+					});
+				}),
+				_el.CREATE('img','','',imgProps)
+			]);
+		}else if(info.thumb){
+			thumb=_el.CREATE('img','','Blog-ArticleCard-Thumb',imgProps);
+		}
+		
+		return _el.CREATE('div','','',{},[_el.CREATE('a','','invisiAnchors', {
+			'href':'/news/'+info.slug
+		},[
+			_el.CREATE('div','','Blog-ArticleCard',{
+				onclick:function(e){_el.CancelEvent(e); VCR.main.CHANGE("article", {article:info.slug, articleTitle:info.title});}
+			},[
+				_el.CREATE('div','','',{},[
+					thumb,
+					_el.CREATE('hr'),
+					_el.CREATE('h2','','Blog-ArticleCard-Title',{},[info.title])
+				]),
+				_el.CREATE('div','','Blog-ArticleCard-DescriptionContainer',{},[
+					(info.description ? _el.CREATE('p','','',{},[info.description]) : '')
+				]),
+				_el.CREATE('div','','Blog-ArticleCard-CategoryContainer')
+			])
+		])]);
+	}
+	function DrawList(min, max, list){
+		var drawn=false;
+		_el.APPEND(tar,_el.CREATE('h1','','',{},[h1Text]));
+		for(var i=min; i<max; i++)
+		{
+			if(!list[i]){break;}
+			_el.APPEND(tar, ListMember(list[i]));
+			drawn=true;
+		}
+		if(!drawn && min === 0){
+			_el.APPEND(tar, _el.CREATE('div','','',{},["No Results"]));
+			return;
+		}
+		if(max >= categoryLists[cat].maxResults ){
+			_el.APPEND(tar, _el.CREATE('div','','',{},["End of Results"]));
+		}
+		if(max < categoryLists[cat].maxResults){
+			_el.APPEND(tar, _el.CREATE('a','','invisiAnchors',{
+				href:'/news'+((cat === 'all')?'':'/c/'+cat)+'/'+(page+1)
+			},[_el.CREATE('button','Blog-NextButton','Blog-PageButtons',{
+				onclick:function(e){
+					_el.CancelEvent(e);
+					page++;
+					VCR.main.CHANGE("category", {category:cat, page:page});
+				}
+			},["Next"])]));
+		}
+		if(page > 0){
+			_el.APPEND(tar, _el.CREATE('a','','invisiAnchors',{
+				href:'/news'+((cat === 'all')?'':'/c/'+cat)+((page-1)?'/'+(page-1):'')
+			},[_el.CREATE('button','Blog-PrevButton','Blog-PageButtons',{
+				onclick:function(e){
+					_el.CancelEvent(e);
+					page--;
+					VCR.main.CHANGE("category", {category:cat, page:page});
+					
+				}
+			},["Prev"])]));
+		}
+	}
+	
+	var vd=a.GET_viewData();
+	var cat=vd.category;
+	var catTitle=vd.categoryTitle;
+	cat = cat || 'all';
+	
+	document.body.className="Blog-ListActive Blog-ListActive-"+cat;
+	document.getElementById('listContainer').style.removeProperty('top');
+	var tar=document.getElementById("listTarget");
+	_el.EMPTY(tar);
+	clearTimeout(bodyTimeout);
+	var artTar=document.getElementById("articleWrapper");
+	var docElem=document.documentElement;
+	var scrltp=docElem.scrollTop;
+	docElem.scrollTop=0;
+	
+	var mainNavButton=document.getElementById('mainNavButton');
+	mainNavButton.innerHTML="Home Page";
+	mainNavButton.parentNode.href='/';
+	
+	if(activeView === 'article'){
+		artTar.style.top=-scrltp+'px';
+		document.body.className="Blog-Transition-ArticleToList Blog-ListActive-"+cat;
+		
+		bodyTimeout=setTimeout(function(){
+			artTar.style.removeProperty('top');
+			document.body.className="Blog-ListActive Blog-ListActive-"+cat;
+			_el.EMPTY(document.getElementById('articleTarget'));
+		}, 1001);
+		
+	}else{
+		bodyTimeout=setTimeout(function(){
+			artTar.style.removeProperty('top');
+			document.body.className="Blog-ListActive Blog-ListActive-"+cat;
+			_el.EMPTY(document.getElementById('articleTarget'));
+		},1001);
+	}
+	
+
+	var page=parseInt(vd.page);
+	page=page || 0;
+	var ll=categoryLists[cat];
+	
+	savedCategoryVd=vd;
+	
+	var nnbut;
+	if(nnbut=Array.from(document.querySelectorAll('.Blog-CategoryButton')).find(function(e, i){
+		return e.parentNode.href.match(new RegExp(cat+'$')) || (i === 0 && cat === 'all');
+	})){
+		_el.MoveId('Blog-SelectedCategoryButton', nnbut);
+	};
+	
+	
+	if(ll){
+		page=Math.min(Math.floor(ll.maxResults/resultPageLength), page);
+	}
+	
+	var h1Text;
+	if(cat === 'all'){
+		_hist.url="https://demo.greggoad.net/news";
+		_hist.documentTitle="News";
+		h1Text='News Articles';
+	}else{
+		_hist.url="https://demo.greggoad.net/news/c/"+cat;
+		_hist.documentTitle="News | "+catTitle;
+		h1Text=catTitle+' Articles';
+	}
+	
+	
+	if(page){
+		_hist.url+='/'+page;
+		_hist.documentTitle+=" | Page "+(page+1);
+		h1Text+=": Page "+(page+1);
+	}
+	 
+	
+	var min=page*resultPageLength;
+	
+	
+	
+	var needRequest=true;
+	var max=min+resultPageLength;
+	if(ll){
+		max=Math.min(max, ll.maxResults);
+		needRequest=false;
+		for(var i=min; i<max; i++)
+		{
+			if(!ll.list[i]){
+				needRequest=true; break;
+			}
+		}
+	}
+	
+	if(needRequest){
+		// target,fetchMessage, file, config, responseType,responseHandlers,disablers
+		var fd=new FormData();
+		
+		fd.append('category',cat);
+		
+		fd.append('pageNumber',page);
+		fd.append('length', resultPageLength);
+		
+		//console.log(cat,'yo you');
+		
+		var placeHolder=BlogCategoryLoadPlaceholder((cat === 'all') ? '' : catTitle , page ? ''+(page+1) : '');
+		ElFetch(tar,placeHolder, "/news/getCategoryList.php", 
+			{method:"POST", body:fd},"json", {
+				success:function(jsn){
+					if(!categoryLists[cat]){
+						categoryLists[cat]={list:{}};
+					}
+					categoryLists[cat].maxResults=jsn.maxResults;
+					for(var mem in jsn.list)
+					{
+						categoryLists[cat].list[mem]=jsn.list[mem];
+					}
+					DrawList(min, max, categoryLists[cat].list);
+					
+				},
+				fail:function(){
+					
+				}
+				
+			}
+		);
+	}else{
+		DrawList(min, max, ll.list);
+	}
+	activeView='category';
+	
+});
+VCR.main.REGISTER_view("article", function(a){
+ 
+	var vd=a.GET_viewData();
+	var art=vd.article;
+
+	var tar=document.getElementById("articleTarget");
+	_el.EMPTY(tar);
+	clearTimeout(bodyTimeout);
+	
+	
+	document.getElementById('articleWrapper').style.removeProperty('top');
+	var catTar=document.getElementById("listContainer");
+	var docElem=document.documentElement;
+	var scrltp=docElem.scrollTop;
+	docElem.scrollTop=0;
+	
+	var mainNavButton=document.getElementById('mainNavButton');
+	mainNavButton.innerHTML="Article List";
+	mainNavButton.parentNode.href='/news';
+	if(savedCategoryVd){
+		if(savedCategoryVd.category !== "all"){
+			mainNavButton.parentNode.href+="/c/"+savedCategoryVd.category;
+		}
+		if(savedCategoryVd.page){
+			mainNavButton.parentNode.href+="/"+savedCategoryVd.page;
+		}
+	}
+	
+	
+	if(activeView === 'category'){
+		
+		catTar.style.top=-scrltp+'px';
+		document.body.className="Blog-Transition-ListToArticle";
+		bodyTimeout=setTimeout(function(){
+			catTar.style.removeProperty('top');
+			document.body.className="Blog-ArticleActive Blog-ArticleActive-"+art;
+			_el.EMPTY(document.getElementById('listTarget'));
+		},1001);
+	}else{
+		bodyTimeout=setTimeout(function(){
+			catTar.style.removeProperty('top');
+			document.body.className="Blog-ArticleActive Blog-ArticleActive-"+art;
+			_el.EMPTY(document.getElementById('listTarget'));
+		},1001);
+	}
+
+	var needsIgnite=true
+	var cssOut=false;
+	function TryDraw(artInfo){
+		if(artInfo.js && !artInfo.jsLoaded && !artInfo.jsAdded){
+			LoadJs(artInfo);
+		}
+		if(artInfo.css && !artInfo.cssLoaded && !artInfo.cssAdded){
+			LoadCss(artInfo);
+		}else{
+			DrawArticle(artInfo);
+		}
+	}
+	function LoadJs(artInfo){
+		artInfo.jsAdded=true;
+		_el.APPEND(document.head, _el.CREATE('script','','',{
+			src:'/news/'+artInfo.slug+'/js.js',
+			onload:function(){
+				artInfo.jsLoaded=true;
+				if(needsIgnite && artInfo.igniter && !cssOut){
+					if(needsIgnite){
+						needsIgnite=false;
+						window[artInfo.igniter]();
+					}
+				}
+			}
+		}));
+		
+	}
+	function LoadCss(artInfo){
+		artInfo.cssAdded=true;
+		cssOut=true;
+		_el.APPEND(document.head, _el.CREATE('link','','',{
+			rel:'stylesheet',
+			href:'/news/'+artInfo.slug+'/css.css',
+			onload:function(){
+				cssOut=false;
+				artInfo.cssLoaded=true;
+				DrawArticle(artInfo);
+			}
+		}));
+	}
+
+	
+	function DrawArticle(artInfo){
+		_el.EMPTY(tar);
+		var artCat;
+			document.body.className="Blog-ArticleActive Blog-ArticleActive-"+art;
+		_el.APPEND(tar, _el.CREATE('article','','',{},[
+			_el.CREATE('h1','','',{},[artInfo.title]),
+			artCat=_el.CREATE('div','','',{},[])
+		]));
+		if((artInfo['categories'] || []).length){
+			_el.APPEND(tar, [
+				_el.CREATE('h3','','',{},["Categories"]),
+				...artInfo.categories.map(function(m){
+					return _el.CREATE('a','','invisiAnchors',{href:'/news/c/'+m.slug},[
+						_el.CREATE('div','','Blog-CategoryExtender',{
+							onclick:function(e){_el.CancelEvent(e); VCR.main.CHANGE("category", {category:m.slug, categoryTitle:m.name});}
+						},[m.name])
+					]);
+				})
+				
+			]);
+		}
+		if((artInfo['relatedArticles'] || []).length){
+			
+			_el.APPEND(tar, [
+				_el.CREATE('h3','','',{},["Related Articles"]),
+				...artInfo.relatedArticles.map(function(m){
+					return _el.CREATE('a','','invisiAnchors',{href:'/news/'+m.slug},[
+						_el.CREATE('div','','Blog-ArticleExtender',{
+							onclick:function(e){_el.CancelEvent(e); VCR.main.CHANGE("article", {article:m.slug, articleTitle:m.title});}
+						},[m.title])
+					]);
+				})
+				
+			]);
+		}
+		artCat.innerHTML=artInfo.html;
+		
+		if(artInfo.igniter && window[artInfo.igniter]){
+			needsIgnite=false;
+			window[artInfo.igniter]();
+		}
+	}
+	
+	
+	
+	_hist.url="https://demo.greggoad.net/news/"+art;
+	_hist.documentTitle=vd.articleTitle;
+	
+	
+	
+	if(!articles[art]){
+		var fd=new FormData();
+		fd.append('article', art);
+		var placeHolder=BlogArticleLoadPlaceholder(vd.articleTitle);
+		ElFetch(tar,placeHolder, "/news/getArticleInfo.php", 
+			{method:"POST", body:fd},"json", {
+				success:function(jsn){
+					jsn=jsn.data;
+					articles[art]=jsn;
+					TryDraw(jsn);
+					
+				},
+				fail:function(){
+					
+				}
+				
+			}
+		);
+	}else{
+		
+		DrawArticle(articles[art]);
+	}
+	activeView='article';
+});
+
+VCR.main.currentView=activeView;
+
+VCR.main[activeView].viewData=`--Blog-Js-ViewData--`;
+
+VCR.main.LOG_change();
+
+addEventListener('load',function(){
+	document.querySelector('#articleWrapper>div').style.minWidth=document.body.clientWidth+'px';
+});
+addEventListener('resize',function(){
+	document.querySelector('#articleWrapper>div').style.minWidth=document.body.clientWidth+'px';
+});
+</script>
+
+<style>
+.invisiAnchors{
+	color:inherit;
+	text-decoration:inherit;
+}
+nav{
+	position:sticky;
+	top:0;
+	z-index:10;
+}
+header{
+	float:left;
+	padding:10px;
+	margin:8px;
+}
+
+#articleWrapper, #listContainer{
+	display:inline-block;
+	box-sizing:border-box;
+	min-height:100vh;
+}
+
+
+#articleWrapper{
+	background-color:inherit;
+	transition:width 1s, left 1s;
+	overflow:hidden;
+}
+#articleWrapper>div{
+   min-width:100%;
+   box-sizing:border-box;
+}
+#listContainer{
+	max-width:100%;
+   transition:opacity 0.5s;
+   padding-bottom:25vh;
+}
+
+.Blog-ListActive #listContainer{
+	position:static;
+	opacity:1;
+}
+.Blog-ListActive #articleWrapper{
+	position:absolute;
+	left:100%;
+	width:0;
+	top:0;
+}
+.Blog-Transition-ArticleToList #listContainer{
+	position:absolute;
+	top:0;
+	opacity:1;
+}
+.Blog-Transition-ArticleToList #articleWrapper{
+	position:relative;
+	left:100%;
+	width:0;
+}
+
+.Blog-Transition-ListToArticle #listContainer{
+	position:absolute;
+	opacity:0;
+}
+.Blog-Transition-ListToArticle #articleWrapper{
+	position:relative;
+	left:0;
+	width:100%;
+	
+}
+
+.Blog-ArticleActive #listContainer{
+	position:absolute;
+	opacity:0;
+}
+.Blog-ArticleActive #articleWrapper{
+	position:relative;
+	left:0; width:100%;
+}
+
+#mainNavButton{
+	padding:10px;
+	float:right;
+	border:2px solid gold;
+	margin:8px;
+	cursor:pointer;
+	color:black;
+	border-radius:5px;
+	background-color:lightBlue;
+}
+
+main{
+	clear:both;
+	position:relative;
+	background-color:inherit;
+}
+
+.Blog-ArticleCard{
+	display:inline-block;
+	padding:8px;
+	margin:10px;
+	border:2px solid gold;
+	box-shadow:5px 5px 10px gray;
+	border-radius:4px;
+	background-color:salmon;
+	width:500px;
+	max-width:90%;
+	text-align:center;
+	box-sizing:border-box;
+}
+
+.Blog-ArticleCard hr {
+    box-shadow: 0px 3px 2px 2px #99aca5;
+    border-color: #99aca5;
+}
+
+.Blog-ArticleCard-DescriptionContainer {
+    text-align: left;
+    display: inline-block;
+	max-width:85%;
+}
+
+
+.Blog-CategoryButton{
+	display:inline-block;
+	padding:8px;
+	margin:10px;
+	border:2px solid gold;
+	box-shadow:5px 5px 10px gray;
+	border-radius:4px;
+	background-color:salmon;
+}
+
+#Blog-SelectedCategoryButton{
+	border:4px solid blue;
+	font-size:135%;
+}
+
+#categoryListWrapper{
+	white-space:nowrap;
+	overflow-y:hidden;
+	box-sizing:border-box;
+	overflow-x:auto;
+	padding:10px;
+	width:100%;
+}
+#categoryListWrapper:EMPTY{
+	padding:0;
+}
+#categoryListWrapper:has(div)::BEFORE{
+	content:'Categories:';
+	display:block;
+	position:sticky;
+	left:0;
+}
+.CategoryListOverflow:has(div)::BEFORE{
+	content:'Categories (Scroll Left and Right):' !important;
+}
+
+
+
+#articleTarget{
+	position:relative;
+	width:100%;
+	box-sizing:border-box;
+	padding:8px;
+	padding-top:0;
+}
+
+.Blog-PageButtons{
+	position:fixed;
+	background-color:lightBlue;
+	bottom:10%;
+	cursor:pointer;	
+	border:2px solid gold;
+	cursor:pointer;
+	padding:4px;
+	border-radius:5px;
+	font-size:125%;
+}
+#Blog-NextButton{
+	right:2%;
+	box-shadow:-5px 5px 10px black;
+}
+#Blog-PrevButton{
+	left:2%;
+	box-shadow:5px 5px 10px black;
+}
+
+.Blog-ArticleExtender, .Blog-CategoryExtender{
+	padding:10px;
+
+	display:inline-block;
+	border:2px solid gold;
+	margin:8px;
+	cursor:pointer;
+	border-radius:5px;
+	background-color:lightBlue;
+	color:black;
+}
+
+footer{
+	background-color:#333333;
+	color:#f0f0f0;
+	padding:20px;
+	text-align:center;
+}
+footer a{
+	color:#ffffff;
+}
+
+.Blog-ArticleCard img{
+	max-width:100%;
+	border-radius:5%;
+	box-sizing:border-box;
+	padding:5px;
+	height:auto;
+}
+
+article{
+	font-size:125%;
+	max-width:800px;
+}
+article p{
+	font-size:110%;
+	text-indent:25px;
+}
+article img{
+	max-width:100%;
+	height:auto;
+}
+.parHeading{
+   margin-bottom:0;
+}
+.subHeading{
+   margin-top:0;
+}
+body{
+   background-color:seashell;
+   color:black;
+   transition: color 1s, background-color 1s;
+}
+
+.externalNewWindowLinks{
+   white-space:nowrap;
+}
+.externalNewWindowLinks::AFTER{
+   content:' \21ef';
+   display:inline-block;
+   transform:translate(0px, -3px) rotate(45deg);
+   margin-left:3px;
+   margin-right:3px;
+}
+
+
+code{
+   width:100%;
+   box-sizing:border-box;
+   overflow-x:scroll;
+   text-align:left;
+   display:block;
+   white-space:nowrap;
+   padding:15px;
+   background-color:azure;
+   color:black;
+   border-radius:10px;
+}
+code>div{
+   width:fit-content;
+}
+ul code{
+   width:96%;
+   margin-top:8px;
+   margin-bottom:8px;
+}
+
+.BlogBasicLoadPlaceholderParent{
+	font-size:110%;
+}
+.BlogBasicLoadPlaceholderParent>span{
+	font-style:italic;
+}
+.BlogBasicLoadPlaceholderParent>span:first-child{
+	animation: 2s 0s infinite alternate BlogBasicLoadPlaceholderParentSpin;
+	margin-right:4px;
+	display:inline-block;
+}
+.BlogBasicLoadPlaceholderParent>span:last-child{
+	animation: 2s 1s infinite alternate BlogBasicLoadPlaceholderParentSpin;
+	margin-left:4px;
+	display:inline-block;
+}
+@keyframes BlogBasicLoadPlaceholderParentSpin{
+	from{
+		transform: rotateY(0deg);
+	}
+	to{
+		transform: rotateY(360deg);
+	}
+}
+
+
+#mainLogo{
+   font-size:150%;
+   padding:20px;
+   border-radius:50%;
+   background-color:black;
+   color:white;
+   border-bottom: 4px solid orange;
+   position:relative;
+   top:-20px;
+   z-index:3;
+}
+code .goldText{
+   color:#ebbe42;
+}
+code .greenText{
+   color:green;
+}
+
+code .redText{
+   color:red;
+}
+
+.embedYoutubeTarget{
+   margin:15px;
+}
+.embedYoutubeWrapper {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 */
+  height: 0;
+}
+.embedYoutubeWrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.hiddenLinks{
+   display:none;
+}
+</style>
+<script>
+CookieManager.autoRender=false;
+
+function CustEmbedYoutubeVid(targetId, videoId, config){
+   var width=config.width || null;
+   var height=config.height || null;
+   var ar=config.ar || null;
+   var target=document.getElementById(targetId);
+   target.classList.add('embedYoutubeTarget');
+   CookieManager.GetPermission("youtube", target, function(){
+      _el.APPEND(target, [
+         _el.CREATE('div','','embedYoutubeWrapper',{innerHTML:'<iframe width="'+width+'" height="'+height+'" src="https://www.youtube.com/embed/'+videoId+'" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>'},[])
+      ]);
+   }, 'to view embedded YouTube videos.');
+}
+</script>
+
+`--Blog-SpecificJs--`
+</head>
+<body class="`--Blog-ClassActiveSwitch--`">
+
+<header><a href="/" class="invisiAnchors"><div id="mainLogo"><i>GregGoad.net</i></div></a></header>
+<nav><a class="invisiAnchors" href="`--Blog-NavButtonHref--`" onclick=" if(activeView === 'category'){return;}_el.CancelEvent(event);VCR.main.CHANGE('category', (savedCategoryVd || undefined));"><div id="mainNavButton" >`--Blog-NavButtonInnards--`</div></a></nav>
+<main>
+<div id="listContainer">
+<div id="categoryListWrapper">
+	`--Blog-CategoryListTarget--`
+</div>
+<script>
+	
+	function CatListWrapperResize(){
+		var clw=document.getElementById('categoryListWrapper');
+		if(!clw){return;}
+		if(clw.clientWidth+5 < clw.scrollWidth){
+			clw.classList.add('CategoryListOverflow');
+		}else{
+			clw.classList.remove('CategoryListOverflow');
+		}
+	}
+	setTimeout(function(){CatListWrapperResize();},1);
+	window.addEventListener('resize', function(){CatListWrapperResize();});
+</script>
+<div id="listTarget">
+`--Blog-ListContent--`
+</div>
+</div>
+<div id="articleWrapper">
+<div id="articleContainer">
+<div id="articleNav">
+</div>
+<div id="articleTarget">
+`--Blog-ArticleContent--`
+</div>
+</div>
+</div>
+</main>
+<footer>
+<div>
+&copy; Greg Goad 2023
+<br><br>
+<a href="/">Visit the Home Page</a>
+<br><br>
+<button onclick="_el.CancelEvent(event);CookieManager.Render();" class="CookieManager-LaunchButton">Open Cookie Manager</button>
+<br><br>
+Produced by <a href="https://webappsactualized.com">Web Apps Actualized</a>
+</div>
+</footer>
+</body>
+</html>

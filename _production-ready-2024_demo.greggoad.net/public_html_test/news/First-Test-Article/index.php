@@ -1,0 +1,1 @@
+<?php require_once("/home/webapp19/demo.greggoad.net/public_html_test/../WAA_siteGen_demoSecure/blogs/news/article.php.temp"); ?>

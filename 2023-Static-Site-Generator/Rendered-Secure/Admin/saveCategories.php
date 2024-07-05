@@ -20,6 +20,7 @@
 	$dat=json_decode($dat, true);
 	
 	ObVarSet($dat,'list',$list);
+	$list=array_map(function($l){return $l['pk'];}, $list);
 	
 	function SqliteInList($list, &$fo){
 		$vs=[];
@@ -41,6 +42,7 @@
 		};
 		return join(',',$vs);
 	}
+	
 	
 	$sqlite=SQLite3_Concurrent("$_SERVER[DOCUMENT_ROOT]/../-redacted-/blogs/news/db.db");
 	
